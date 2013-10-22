@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/13/trunk/as3/test/as3/waterfall
+END
+build.ant
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/13/trunk/as3/test/as3/waterfall/build.ant
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/13/trunk/as3/test/as3/waterfall/.project
+END

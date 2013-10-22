@@ -1,0 +1,5 @@
+K 8
+relative
+V 22
+-r 14 ^/trunk/doc/wiki
+END

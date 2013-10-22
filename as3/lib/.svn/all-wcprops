@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/svn/!svn/ver/20/trunk/as3/lib
+END
+build.ant
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/20/trunk/as3/lib/build.ant
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/13/trunk/as3/lib/.project
+END

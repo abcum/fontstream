@@ -1,0 +1,172 @@
+#summary Usage of fsdgen tool
+
+= Data generator =
+
+The current !FontStream version support only SWF format which contains a embedded font (chunks).
+
+Each SWF (font chunk) contains a defined number of chars (default 100):
+
+{{{
+U+0000-U+0063
+U+0064-U+00C7
+U+00C8-U+012B
+U+012C-U+018F
+U+0190-U+01F3
+...
+}}}
+
+To compile these chunks, you can use Flex SDK or hxswfml handled by a script (shell script or as3 script). See below.
+
+== Flex SDK - fontkit ==
+
+See [EmbedFont#Flex_SDK_-_fontkit Flex SDK - fontkit] for more informations.
+
+== hxswfml ==
+
+See [EmbedFont#hxswfml hxswfml] for more informations.
+
+== Scripts ==
+
+=== fsdgen, Redtamarin AS3 script ===
+
+{{{
+set FLEX_HOME=path/to/flexsdk
+redshell fsdgen.as -- -a "My Font" "myfont.otf"
+}}}
+
+You can make a shell script or a command line script using arguments redirection `$@` (Unix) or `%*` (Windows)
+
+See redtamarin readme.txt about compile AS3 script to executable.
+
+	* http://code.google.com/p/fstream/source/browse/trunk/utils/fsdgen.as
+	* http://code.google.com/p/redtamarin/
+
+=== Shell script, command line script ===
+
+_This script use Flex SDK, but could be adapted to use an other tool._
+
+*This script is here just as example and could not work as except, must be debugged and tested!*
+
+	* http://help.adobe.com/en_US/flex/using/WS2db454920e96a9e51e63e3d11c0bf69084-7f5f.html#WS02f7d8d4857b16776fadeef71269f135e73-8000
+	* http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+	* http://tldp.org/LDP/abs/html/
+	* http://en.wikipedia.org/wiki/Printf#sprintf
+
+{{{
+#!/bin/bash
+
+E_BADARGS=10
+
+FLEX_HOME="path/to/flexsdk"
+FLEX_FONT_KIT="java -Dsun.io.useCanonCaches=false -Xms32m -Xmx512m -jar \"$FLEX_HOME/lib/flex-fontkit.jar\""
+font_swf="$FLEX_FONT_KIT -3";
+size=100
+alias=
+bold=0
+italic=0
+file=
+
+usage()
+{
+	cat << EOF
+usage: $0 options file
+
+This script generate SWF chunks of a font, by calling flex-fontkit.jar of Flex SDK
+
+Supported font file types are TrueType, OpenType, TrueType Collection and Datafork TrueType.
+
+OPTIONS:
+   -h	 	   Show this message
+   -b	 	   Embeds the font’s bold face.
+   -i	 	   Embeds the font’s italic face.
+   -a alias    Sets the font’s alias. The default is the font’s family name.
+   -s size     Sets the number of chars in each SWF chunks. The default is 100.
+EOF
+}
+
+while [[ $1 == -* ]]; do
+	case "$1" in
+		# Help
+		-h|-help|--help|-\?) usage; exit 0;;
+		# Bold flag
+		-b|-bold|--bold) bold=1; shift;;
+		# Italic flag
+		-i|-italic|--italic) italic=1; shift;;
+		# Alias
+		-a|-alias|--alias) if (($# > 1))
+			then
+				alias=$2; shift 2
+			else 
+				echo "$1 requires an argument" 1>&2
+				exit $E_BADARGS
+			fi ;;
+		# Chunk size
+		-s|-size|--size) if (($# > 1))
+			then
+				size=$2; shift 2
+			else 
+				echo "$1 requires an argument" 1>&2
+				exit $E_BADARGS
+			fi ;;
+		# No more optional arguments, next is file
+		--) if (($# > 1))
+			then
+				file=$2; shift 2; break
+			else 
+				echo "$1 requires an argument" 1>&2
+				exit $E_BADARGS
+			fi ;;
+		# All others arguments
+		-*) echo "invalid option: $1" 1>&2; usage; exit $E_BADARGS;;
+		# Assume is last as file
+		*) if (($# > 1))
+			then
+				echo "invalid argument founded: $2" 1>&2
+				exit $E_BADARGS
+			else 
+				file=$1; shift; break
+			fi ;;
+	esac
+done
+
+# File argument not found or file not exist
+if [[ -z $file ]] || [[ -e $file ]]
+then
+	echo "invalid file" 1>&2; usage; exit $E_BADARGS
+fi
+
+# Alias is set
+if [[ -n $alias ]]
+then
+	font_swf = "$font_swf -a $alias"
+fi
+
+# Bold
+if (($bold == 1))
+then
+	font_swf = "$font_swf -b"
+fi
+
+# Italic
+if (($italic == 1))
+then
+	font_swf = "$font_swf -i"
+fi
+
+# Last char is U+FFFF
+max=65535
+last=0
+i=0
+
+while ((last < max))
+do
+	((i++))
+	first=$((i * chunk_length))
+	last=$((first + chunk_length - 1))
+	if((last > max))
+		last = $max
+	fi
+	range=$(printf "U+%04#x-U+%04#x" "$first" "$last")
+	$font_swf -u "$range" -o "$range" "$file"
+done
+}}}
