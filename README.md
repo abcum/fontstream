@@ -3,13 +3,11 @@
 An AS3 library to handle progressive font loading. Avoid one time load of large swf font files by splitting each font into many font files and loading only what is required.
 
 ```as3
-var fontLoader:FontLoader = new FontLoader();
-fontLoader.load(new FontChunksRequest("Arial Unicode MS", FontStyle.REGULAR, "Some text"));
+var loader:FontLoader = new FontLoader();
+loader.load(new FontChunksRequest("Arial Unicode MS", FontStyle.REGULAR, "Some text"));
 ```
 
 ## MIT License
-Copyright (c) 2013 by Joseph Gentle and Nate Smith
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
